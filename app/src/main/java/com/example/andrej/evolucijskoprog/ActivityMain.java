@@ -76,7 +76,19 @@ public class ActivityMain extends AppCompatActivity {
             }
         }
         textizpis.append("Konec");*/
-        textizpis.append(DE(pop_size,evaluacija,dimenzija,min,max,f,cr,spinnerpos));
+        double[] array = new double[30]; //v velikosti zagonov!
+        double pov =0;
+        for(int i =0;i<30;i++){
+            array[i] = DE(pop_size,evaluacija,dimenzija,min,max,f,cr,spinnerpos);
+        }
+        for(double sum:array)pov+=sum;
+        pov=pov/30;
+        double stdO =0;
+        for(int i=0;i<30;i++){
+            stdO+=Math.pow((array[i]-pov),2);
+        }
+        stdO=Math.sqrt(stdO/30);
+        textizpis.append("Povprečje:  "+String.valueOf(pov)+"\nStan_O:   "+ String.valueOf(stdO));
 
 
     }
@@ -120,7 +132,7 @@ public class ActivityMain extends AppCompatActivity {
         }
         return r;
     }
-    public static String DE(int pop_size,int evaluacij,int dim,double min,double max,double F,double CR, int spinnerpos){ //Differential_evolution
+    public static double DE(int pop_size,int evaluacij,int dim,double min,double max,double F,double CR, int spinnerpos){ //Differential_evolution
         double x[][] =new double[pop_size][];
         double f[] = new double[pop_size];
         double ff=0;
@@ -141,7 +153,7 @@ public class ActivityMain extends AppCompatActivity {
             eval++;
             if(bestf>f[i]){
                 bestf=f[i];
-                bestx =x[i];
+                bestx =Arrays.copyOf(x[i],x[i].length);
             }
         }
         //na random izberemo 3 različna števila!
@@ -149,12 +161,15 @@ public class ActivityMain extends AppCompatActivity {
         while(eval<=evaluacij){
             for(int i=0;i<pop_size;i++){
                 a=rnd.nextInt(pop_size);
+                while(a==i){
+                    a=rnd.nextInt(pop_size);
+                }
                 b=rnd.nextInt(pop_size);
-                while(a==b){
+                while(a==b || b==i){
                     b=rnd.nextInt(pop_size);
                 }
                 c=rnd.nextInt(pop_size);
-                while((a==b)||(a==c)||(b==c)){
+                while((a==b)||(a==c)||(b==c)||(c==i)){
                     c=rnd.nextInt(pop_size);
                 }
                 int R = rnd.nextInt(dim);
@@ -177,20 +192,20 @@ public class ActivityMain extends AppCompatActivity {
                 eval++;
                 if(ff<f[i]){ //če je križana vrednost boljša si jo zapomnimo
                     f[i] = ff;
-                    x[i] =y;
+                    x[i] =Arrays.copyOf(y,y.length);
                     if(bestf>ff){
                         bestf=ff;
-                        bestx=y;
+                        bestx=Arrays.copyOf(y,y.length);;
                     }
                 }
                 if(eval>=evaluacij)
                     break;
             }
         }
-        for (int k = 0; k < dim; k++) {
+       /* for (int k = 0; k < dim; k++) {
             bestx[k] = Math.round(bestx[k] * 1000000.0) / 1000000.0;
-        }
-        String rez = Arrays.toString(bestx) + "; " + Math.round(bestf * 1000000.0) / 1000000.0;
-        return rez;
+        }*/
+       // String rez = Arrays.toString(bestx) + "; " + Math.round(bestf * 1000000.0) / 1000000.0;
+        return bestf;
     }
 }
